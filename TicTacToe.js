@@ -252,11 +252,11 @@
 
 import './TicTacToe.css';
 import cn from 'classnames';
-import React, { useEffect, useRef, useState } from 'react';
-import { readFromStorage, writeToStorage } from './LocalStorage';
+import React, {  useRef, useReducer } from 'react';
+//import { readFromStorage, writeToStorage } from './LocalStorage';
 //import { useLocalStorageState } from './useLocalStorageState';
-const HISTORY = "history";
-const STEPS = "step";
+/* const HISTORY = "history";
+const STEPS = "step"; */
 const Square = ({ value, handleClick, highlight }) => {
     const classes = cn('square', { 'highlightSquare': highlight });
     return (
@@ -291,7 +291,98 @@ const Board = ({ board, handleClick, winningline }) => {
 };
 
 const Game = () => {
-    const handleClick = (i) => {
+    const SET_PLAYER_X_ACTION_TYPE = 'SET_PLAYER_X';
+    const SET_PLAYER_Y_ACTION_TYPE = 'SET_PLAYER_Y';
+    const SET_CURRENT_PLAYER_ACTION_TYPE = 'SET_CURRENT_PLAYER';
+    const RESET_ACTION_TYPE = 'RESET';
+    const PLAY_NEXT_STEP_ACTION_TYPE = 'PLAY_NEXT_STEP';
+    const GOTO_STEP_ACTION_TYPE = 'GO_TO_STEP';
+
+    const initialState = {
+        history: [Array(9).fill(null)],
+        playerX: 'X',
+        playerY: 'Y',
+        currentPlayer: 'X',
+        step: 0,
+        winningLine: [],
+        };
+      const setPlayerX = (playerName) => ({
+        type: SET_PLAYER_X_ACTION_TYPE,
+        playerName,
+        });
+
+    const setPlayerY = (playerName) => ({
+        type: SET_PLAYER_Y_ACTION_TYPE,
+        playerName,
+        });
+
+    const setCurrentPlayer = (playerName) => ({
+        type: SET_CURRENT_PLAYER_ACTION_TYPE,
+        playerName,
+        });
+
+    const resetGame = () => ({
+        type: RESET_ACTION_TYPE,
+        initialState,
+        });
+
+    const playNextStep = (index) => ({
+        type: PLAY_NEXT_STEP_ACTION_TYPE,
+        index,
+        });
+    const gotoStep = (step) => ({
+        type: GOTO_STEP_ACTION_TYPE,
+        step,
+        });
+
+    const ticTacToeReducer = (state, action) => {
+        switch(action.type) {
+            case SET_PLAYER_X_ACTION_TYPE:
+            return {...state, playerX: action.playerName};
+            case SET_PLAYER_Y_ACTION_TYPE:
+            return {...state, playerY: action.playerName};
+            case SET_CURRENT_PLAYER_ACTION_TYPE:
+            return {...state, currentPlayer: action.playerName};
+            case RESET_ACTION_TYPE:
+            return action.initialState;
+            case PLAY_NEXT_STEP_ACTION_TYPE:
+            return reduceNextStep(state, action.index);
+            case GOTO_STEP_ACTION_TYPE:
+            if(action.step >= 0 && action.step < 10) {
+            return {...state, step: action.step};
+            } else {
+                    throw new Error('Steps needs to be within 0 and 10');
+            // return state;
+            }
+        default:
+        return state;
+        }
+        }; 
+        function reduceNextStep(state, index) {
+            //Get the most recent history from history, and
+            //make a copy of it.
+            let { history, step, currentPlayer, playerX, playerY } = state;
+            const prevHistory = history[step];
+            const newHistory = [...prevHistory];
+            newHistory[index] = currentPlayer;
+        
+            //Concatenate the history
+            history = history.concat([newHistory]);
+        
+            //Change the player for the next turn
+            currentPlayer = currentPlayer === playerX ? playerY : playerX;
+            //Indicate we want to play next step
+            step += 1;
+        
+            return { ...state, history, step, currentPlayer };
+        }
+        const [state, dispatch] = useReducer(ticTacToeReducer,initialState);
+        let {history, step, currentPlayer, playerX, playerY} = state;
+
+        const board = history[step];
+        const winningperson = computeWinner(board);
+        const winner = winningperson.winner
+        const handleClick = (i) => {
         const isStepCurrent = () => step === history.length - 1;
         console.log(`square ${i} is clicked`);
         //We need to record this interaction in the board state
@@ -300,29 +391,28 @@ const Game = () => {
         if (isStepCurrent() && board[i] === null && winner === null) {
             //Set board state to a new state depending who is the current player
             //we need to derive right board for the given step
-            const newBoard = [...board]; //Note, we have to create a new state object, and never mutate the current state and set it back. React wont come to know any state change in this case and there will be no re rendering that is going to happen
-            newBoard[i] = player;
+            //const newBoard = [...board]; //Note, we have to create a new state object, and never mutate the current state and set it back. React wont come to know any state change in this case and there will be no re rendering that is going to happen
+            //newBoard[i] = player;
             //Flip the player
-            setPlayer(player == randomPlayer1.current ? randomPlayer2.current : randomPlayer1.current);
+            //setPlayer(player == randomPlayer1.current ? randomPlayer2.current : randomPlayer1.current);
             //Set the board state
 
-            const newHistory = history.concat([newBoard]);
+            /* const newHistory = history.concat([newBoard]);
             setHistory(newHistory);
 
             writeToStorage(HISTORY, newHistory);
             //update the step
             setStep(prevStep => prevStep + 1);
-            writeToStorage(STEPS, step+1);
+            writeToStorage(STEPS, step+1); */
+            dispatch(playNextStep(i));
         }
     };
 
 
-    const [history, setHistory] = useState(() => readFromStorage(HISTORY) ||[Array(9).fill(null)]);
+    /* const [history, setHistory] = useState(() => readFromStorage(HISTORY) ||[Array(9).fill(null)]);
     const [step, setStep] = useState(readFromStorage(STEPS) ||0);
-    const [player, setPlayer] = useState('X');
-    const board = history[step];
-    const winningperson = computeWinner(board);
-    const winner = winningperson.winner
+    const [player, setPlayer] = useState('X'); */
+    
 
     function computeWinner(board) {
         const lines = [
@@ -366,50 +456,52 @@ const Game = () => {
             return Draw();
         }
     };
-    const jumpToState = (step) => {
+   /*  const jumpToState = (step) => {
                 setStep(step);
-     };
+     }; */
 
     function Draw() {
         //const winner = computeWinner(history[step]);
         if (!winner && step === 9) {
             return `Match is a Draw`;
-        } else return ` Next Player is ${player} `;
+        } else return `Next player: ${currentPlayer ? currentPlayer : ''}`;
     }
     function renderHistory() {
         return history.map((b, index) => (
             <li key={index}>
             
-                <button class={cn('focuss',{focussClicked:index===step})}   onClick={() => jumpToState(index)}>
+                <button class={cn('focuss',{focussClicked:index===step})}   onClick={() => dispatch(gotoStep(index))}>
                     {index === 0 ? 'Go to start of the game' : `Goto step${index}`}
                 </button>
             </li>
         ));
     }
     let randomPlayer1 = useRef(null);
-    let randomPlayer2 = useRef(null);
+    //let randomPlayer2 = useRef(null);
     console.log(randomPlayer1.current);
 
-    useEffect(() => {
+   /*  useEffect(() => {
         console.log(randomPlayer1.current);
         if (randomPlayer1.current) {
             randomPlayer1.current.focus();
         } else {
             randomPlayer2.current.focus();
         }
-    }, []);
+    }, []); */
 
-    let numberOfRenders = 0; //useRef(0);
+    /* let numberOfRenders = 0; //useRef(0);
 
     useEffect(() => {
         numberOfRenders += 1;
         console.log('Number of times rendered = ', numberOfRenders);
-    });
-    function reset() {
-        setHistory([Array(9).fill(null)]);
-        setStep(0);
-        setPlayer('X');
-    }
+    }); */
+    // const resetGame=()=>( {
+    //     /* setHistory([Array(9).fill(null)]);
+    //     setStep(0);
+    //     setPlayer('X'); */
+    //     type:RESET_ACTION_TYPE,
+    //     initialState,
+    // });
 
     return (
         <div className="game">
@@ -420,13 +512,29 @@ const Game = () => {
                 <div>{status()}</div>
                 <ol>{renderHistory()}</ol>
             </div>
-            <div>
-                <button onClick={reset}>Reset</button>
+            <div className={'resetButton'}>
+            <button type={'reset'} onClick={() => dispatch(resetGame())}>Reset</button>
             </div>
             <div className="name-inputs">
-                <input ref={randomPlayer1} type={'text'} maxlength={1} onChange={(event) => { randomPlayer1.current = event.target.value; setPlayer(event.target.value) }} placeholder={'X'} /><br></br>
-                <input ref={randomPlayer2} type={'text'} maxlength={1} onChange={(event) => { randomPlayer2.current = event.target.value; if (randomPlayer1.current === randomPlayer2.current) alert('give another name') }} placeholder={'Y'} />
-
+            <label>Player 1</label>
+                    <input ref={randomPlayer1} type={'text'} value={playerX} onChange={(e) => {
+                    dispatch(setPlayerX(e.target.value));
+                    dispatch(setCurrentPlayer(e.target.value))}}
+                    placeholder={'X'}
+                    maxLength={1} /><br/>
+                    </div>
+                    <div>
+                    <label>Player 2</label>
+                    <input type={'text'} value={playerY}
+                    onChange={(e) => {
+                    if(playerX === e.target.value) {
+                    alert('change the name');
+                    }
+                    dispatch(setPlayerY(e.target.value));
+                    }}
+                    placeholder={'Y'}
+                    maxLength={1}
+                    />
             </div>
 
         </div>
