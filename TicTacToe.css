@@ -1,0 +1,178 @@
+/* body {
+  font: 14px "Century Gothic", Futura, sans-serif;
+  margin: 20px;
+}
+
+ol,
+ul {
+  padding-left: 30px;
+}
+
+.board-row:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+.status {
+  margin-bottom: 10px;
+}
+
+.square {
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 34px;
+}
+.highlightSquare {
+  background: green;
+  }
+.square:focus {
+  outline: none;
+}
+.classes {
+  background-color: darkgreen;
+  color:green;
+  }
+
+.kbd-navigation .square:focus {
+  background: #ddd;
+}
+
+.game {
+  display: flex;
+  flex-direction: row;
+}
+
+.game-info {
+  margin-left: 20px;
+}
+
+/* .focuss {
+      color: red;
+      /* focus: #cc0; */
+/* outline: blue auto 5px; */
+
+/*.focuss:hover {
+  color: rgb(7, 0, 0);
+  background: yellow;
+}
+
+/* .focuss:visited {
+    background: rgb(4, 4, 240);
+} */
+/*.focuss:focus {
+  background: rgb(204, 0, 0);
+}
+
+.focussClicked {
+  background-color: red;
+  color: white;
+}
+
+button.reset {
+  padding: 10px;
+  text-align: center;
+  }
+  .Button {
+    height:40px;
+    margin:8px 8px;
+    }
+    
+    .SelectedButton {
+    background-color: hsl(130, 50%,50%);
+    color: white;
+    } */
+
+    body {
+      font: 14px "Century Gothic", Futura, sans-serif;
+      margin: 20px;
+      }
+      
+      ol, ul {
+      padding-left: 30px;
+      }
+      
+      .board-row:after {
+      clear: both;
+      content: "";
+      display: table;
+      }
+      
+      .status {
+      margin-bottom: 10px;
+      }
+      
+      .square{
+      background: #fff;
+      border: 1px solid #999;
+      float: left;
+      font-size: 24px;
+      font-weight: bold;
+      line-height: 34px;
+      height: 34px;
+      margin-right: -1px;
+      margin-top: -1px;
+      padding: 0;
+      text-align: center;
+      width: 34px;
+      }
+    
+      .highlightSquare {
+      background: teal;
+      }
+      
+      .square:focus {
+      outline: none;
+      }
+      .classes {
+      background-color: darkgreen;
+      color:green;
+      }
+      
+      .kbd-navigation .classname:focus {
+      background: #ddd;
+      }
+      
+      .game {
+      display: flex;
+      flex-direction: row;
+      }
+      
+      .game-info {
+      margin-left: 20px;
+      }
+      button.active:focus {
+      background: red;
+      }
+      button.activeClicked {
+      background-color:red;
+      color: #fff;
+      
+      }
+      button.reset {
+      padding: 10px;
+      text-align: center;
+      }
+      .focuss:hover {
+        color: rgb(7, 0, 0);
+        background: yellow;
+      }
+      .focuss:focus {
+        background: rgb(204, 0, 0);
+      }
+      .focuss:visited {
+        background: rgb(4, 4, 240);
+    }
+    .focussClicked {
+      background-color: red;
+      color: white;
+    }
