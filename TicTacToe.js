@@ -252,11 +252,26 @@
 
 import './TicTacToe.css';
 import cn from 'classnames';
-import React, {  useRef, useReducer } from 'react';
+import React, {  useRef ,useReducer} from 'react';
 //import { readFromStorage, writeToStorage } from './LocalStorage';
 //import { useLocalStorageState } from './useLocalStorageState';
 /* const HISTORY = "history";
 const STEPS = "step"; */
+
+/* function useReducer(initialState, reduceFunction) {
+    let innerState = initialState;
+    let reduce = reduceFunction; 
+ 
+    function dispatch(action) {
+      innerState = reduce(innerState, action)
+    }
+    
+    function state() {
+      return innerState
+    }
+    return [state, dispatch]
+ } */
+
 const Square = ({ value, handleClick, highlight }) => {
     const classes = cn('square', { 'highlightSquare': highlight });
     return (
@@ -445,9 +460,8 @@ const Game = () => {
     function status() {
         //Check if there is a winner, if so, please show the status that there is a winner,
         //and game should end.
-        //We can actually derive if there is a winner. We dont need to maintain a seperate state
-        //for this.
-        //const winner = computeWinner(history[step]);
+        
+       
         if (winner)
         {
 
@@ -461,7 +475,7 @@ const Game = () => {
      }; */
 
     function Draw() {
-        //const winner = computeWinner(history[step]);
+       
         if (!winner && step === 9) {
             return `Match is a Draw`;
         } else return `Next player: ${currentPlayer ? currentPlayer : ''}`;
@@ -479,29 +493,6 @@ const Game = () => {
     let randomPlayer1 = useRef(null);
     //let randomPlayer2 = useRef(null);
     console.log(randomPlayer1.current);
-
-   /*  useEffect(() => {
-        console.log(randomPlayer1.current);
-        if (randomPlayer1.current) {
-            randomPlayer1.current.focus();
-        } else {
-            randomPlayer2.current.focus();
-        }
-    }, []); */
-
-    /* let numberOfRenders = 0; //useRef(0);
-
-    useEffect(() => {
-        numberOfRenders += 1;
-        console.log('Number of times rendered = ', numberOfRenders);
-    }); */
-    // const resetGame=()=>( {
-    //     /* setHistory([Array(9).fill(null)]);
-    //     setStep(0);
-    //     setPlayer('X'); */
-    //     type:RESET_ACTION_TYPE,
-    //     initialState,
-    // });
 
     return (
         <div className="game">
