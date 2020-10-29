@@ -252,7 +252,8 @@
 
 import './TicTacToe.css';
 import cn from 'classnames';
-import React, {  useRef ,useReducer} from 'react';
+import React, {  useRef ,useEffect} from 'react';
+import useTicTacToe from './useTicTacToe';
 //import { readFromStorage, writeToStorage } from './LocalStorage';
 //import { useLocalStorageState } from './useLocalStorageState';
 /* const HISTORY = "history";
@@ -274,15 +275,17 @@ const STEPS = "step"; */
 
 const Square = ({ value, handleClick, highlight }) => {
     const classes = cn('square', { 'highlightSquare': highlight });
+    //const classes = `square ${winner ? 'square-winning' : undefined}`;
     return (
         <button className={classes} onClick={handleClick}>
             {value}
         </button>
     );
 };
-const Board = ({ board, handleClick, winningline }) => {
+const Board = ({ board, handleClick, winnerLine }) => {
     function renderSquare(i) {
-        return <Square value={board[i]} handleClick={() => handleClick(i)} highlight={winningline && winningline.includes(i)} />;
+        const winner = (winnerLine && winnerLine.includes(i)) || false;
+        return <Square value={board[i]} winner={winner} handleClick={() => handleClick(i)} highlight={winnerLine && winnerLine.includes(i)} />;
     }
     return (
         <div>
@@ -306,14 +309,15 @@ const Board = ({ board, handleClick, winningline }) => {
 };
 
 const Game = () => {
-    const SET_PLAYER_X_ACTION_TYPE = 'SET_PLAYER_X';
+    /* const SET_PLAYER_X_ACTION_TYPE = 'SET_PLAYER_X';
     const SET_PLAYER_Y_ACTION_TYPE = 'SET_PLAYER_Y';
     const SET_CURRENT_PLAYER_ACTION_TYPE = 'SET_CURRENT_PLAYER';
     const RESET_ACTION_TYPE = 'RESET';
     const PLAY_NEXT_STEP_ACTION_TYPE = 'PLAY_NEXT_STEP';
-    const GOTO_STEP_ACTION_TYPE = 'GO_TO_STEP';
-
-    const initialState = {
+    const GOTO_STEP_ACTION_TYPE = 'GO_TO_STEP'; */
+    const { history, step, setStep, player, resetGame, computeWinner, processCurrentStepAtIndex } = useTicTacToe();
+   
+    /* const initialState = {
         history: [Array(9).fill(null)],
         playerX: 'X',
         playerY: 'Y',
@@ -348,9 +352,9 @@ const Game = () => {
     const gotoStep = (step) => ({
         type: GOTO_STEP_ACTION_TYPE,
         step,
-        });
+        }); */
 
-    const ticTacToeReducer = (state, action) => {
+    /* const ticTacToeReducer = (state, action) => {
         switch(action.type) {
             case SET_PLAYER_X_ACTION_TYPE:
             return {...state, playerX: action.playerName};
@@ -372,8 +376,8 @@ const Game = () => {
         default:
         return state;
         }
-        }; 
-        function reduceNextStep(state, index) {
+        };  */
+        /* function reduceNextStep(state, index) {
             //Get the most recent history from history, and
             //make a copy of it.
             let { history, step, currentPlayer, playerX, playerY } = state;
@@ -396,14 +400,14 @@ const Game = () => {
 
         const board = history[step];
         const winningperson = computeWinner(board);
-        const winner = winningperson.winner
+        const winner = winningperson.winner */
         const handleClick = (i) => {
-        const isStepCurrent = () => step === history.length - 1;
+        //const isStepCurrent = () => step === history.length - 1;
         console.log(`square ${i} is clicked`);
         //We need to record this interaction in the board state
         //1. The square got fresh tap
         //2. The square already had a value associated, in other words, board[i] had a non null value
-        if (isStepCurrent() && board[i] === null && winner === null) {
+        //if (isStepCurrent() && board[i] === null && winner === null) {
             //Set board state to a new state depending who is the current player
             //we need to derive right board for the given step
             //const newBoard = [...board]; //Note, we have to create a new state object, and never mutate the current state and set it back. React wont come to know any state change in this case and there will be no re rendering that is going to happen
@@ -419,9 +423,11 @@ const Game = () => {
             //update the step
             setStep(prevStep => prevStep + 1);
             writeToStorage(STEPS, step+1); */
-            dispatch(playNextStep(i));
-        }
-    };
+           // dispatch(playNextStep(i));
+           processCurrentStepAtIndex(i);
+           
+        };
+    
 
 
     /* const [history, setHistory] = useState(() => readFromStorage(HISTORY) ||[Array(9).fill(null)]);
@@ -429,7 +435,7 @@ const Game = () => {
     const [player, setPlayer] = useState('X'); */
     
 
-    function computeWinner(board) {
+   /*  function computeWinner(board) {
         const lines = [
             [0, 1, 2],
             [3, 4, 5],
@@ -454,37 +460,38 @@ const Game = () => {
             winner: null,
             line: null,
         };
-    }
+    } */
 
 
     function status() {
         //Check if there is a winner, if so, please show the status that there is a winner,
         //and game should end.
-        
-       
-        if (winner)
-        {
+        const [winner] = computeWinner(history[step]);
+        if (winner === null) {
+            if (step === 9)
+                //We have filled all the board, this must be a draw
+                return 'Game is drawn!';
 
-            return `Winner is player ${winner} `;
+            return `Next player: ${player}`;
         } else {
-            return Draw();
+            return `Player ${winner} won!`;
         }
-    };
+    }
    /*  const jumpToState = (step) => {
                 setStep(step);
      }; */
 
-    function Draw() {
+    /* function Draw() {
        
         if (!winner && step === 9) {
             return `Match is a Draw`;
         } else return `Next player: ${currentPlayer ? currentPlayer : ''}`;
-    }
+    } */
     function renderHistory() {
         return history.map((b, index) => (
             <li key={index}>
             
-                <button class={cn('focuss',{focussClicked:index===step})}   onClick={() => dispatch(gotoStep(index))}>
+                <button class={cn('focuss',{focussClicked:index===step})}   onClick={() => setStep(index)}>
                     {index === 0 ? 'Go to start of the game' : `Goto step${index}`}
                 </button>
             </li>
@@ -493,39 +500,32 @@ const Game = () => {
     let randomPlayer1 = useRef(null);
     //let randomPlayer2 = useRef(null);
     console.log(randomPlayer1.current);
-
+    useEffect(() => {
+        console.log(randomPlayer1.current);
+        if (randomPlayer1.current) {
+            randomPlayer1.current.focus();
+        }
+    }, []);
+    const [, winnerLine] = computeWinner(history[step]);
     return (
         <div className="game">
             <div className="game-board">
-                <Board board={history[step]} handleClick={handleClick} winningline={winningperson.line} />
+                <Board board={history[step]} handleClick={handleClick} winnerLine={winnerLine} />
             </div>
             <div className="game-info">
                 <div>{status()}</div>
                 <ol>{renderHistory()}</ol>
             </div>
             <div className={'resetButton'}>
-            <button type={'reset'} onClick={() => dispatch(resetGame())}>Reset</button>
+            <button type={'reset'} onClick={() => resetGame()}>Reset</button>
             </div>
             <div className="name-inputs">
             <label>Player 1</label>
-                    <input ref={randomPlayer1} type={'text'} value={playerX} onChange={(e) => {
-                    dispatch(setPlayerX(e.target.value));
-                    dispatch(setCurrentPlayer(e.target.value))}}
-                    placeholder={'X'}
-                    maxLength={1} /><br/>
+            <input ref={randomPlayer1} type={'text'} onChange={() => {}} placeholder={'X'} /><br/>
                     </div>
                     <div>
                     <label>Player 2</label>
-                    <input type={'text'} value={playerY}
-                    onChange={(e) => {
-                    if(playerX === e.target.value) {
-                    alert('change the name');
-                    }
-                    dispatch(setPlayerY(e.target.value));
-                    }}
-                    placeholder={'Y'}
-                    maxLength={1}
-                    />
+                    <input type={'text'} onChange={() => {}} placeholder={'Y'} />
             </div>
 
         </div>
