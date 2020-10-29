@@ -74,7 +74,7 @@ function useTicTacToe() {
     };
 
     function reduceNextStep(state, index) {
-        if (index < 0 || index > 8) {
+        if (index < 0 || index > 10) {
             throw new Error('A wrong value for the index is encountered');
         }
 
@@ -100,6 +100,8 @@ function useTicTacToe() {
             step += 1;
 
             return { ...state, history, step, currentPlayer };
+        } else {
+            return state;
         }
     }
 
@@ -130,7 +132,7 @@ function useTicTacToe() {
     }
 
     function processCurrentStepAtIndex(i) {
-        dispatch(playNextStep(11));
+        dispatch(playNextStep(i));
     }
 
     const history = state.history;
